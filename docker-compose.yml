@@ -1,0 +1,45 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # Mosquitto MQTT Broker
+  # ---------------------------------------------------------------------------
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mesh-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"     # Plain MQTT – Meshtastic devices connect here
+      # - "8883:8883"   # Uncomment when TLS is configured
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+      # The password file is created by the setup script below.
+      # Mount it read-only after creation.
+      - ./mosquitto/passwd:/mosquitto/config/passwd:ro
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-u", "${MQTT_USERNAME}", "-P", "${MQTT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Meshtastic Time-Reply Service
+  # ---------------------------------------------------------------------------
+  time-service:
+    build:
+      context: ./service
+      dockerfile: Dockerfile
+    container_name: mesh-time-service
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # Override MQTT_HOST to reach the broker container by its service name
+      MQTT_HOST: mosquitto
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
