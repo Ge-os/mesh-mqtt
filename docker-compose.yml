@@ -11,7 +11,7 @@ services:
       - "1883:1883"     # Plain MQTT – Meshtastic devices connect here
       # - "8883:8883"   # Uncomment when TLS is configured
     volumes:
-      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/mosquitto.conf:/mosquitto/mosquitto.conf:ro
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
       # The password file is created by the setup script below.
