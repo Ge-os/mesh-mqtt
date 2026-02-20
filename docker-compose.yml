@@ -16,7 +16,7 @@ services:
       - mosquitto-log:/mosquitto/log
       # The password file is created by the setup script below.
       # Mount it read-only after creation.
-      - ./mosquitto/passwd:/mosquitto/config/passwd:ro
+      - ./mosquitto/passwd:/mosquitto/passwd:ro
     healthcheck:
       test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-u", "${MQTT_USERNAME}", "-P", "${MQTT_PASSWORD}"]
       interval: 30s
